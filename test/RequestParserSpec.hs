@@ -33,6 +33,22 @@ spec = do
     it "cannot parse illegal input" $
       evaluate(parse_ version "1.0") `shouldThrow` anyErrorCall
 
+  describe "headers" $ do
+    it "parses a http headers" $
+      parse_ headers "K1: V1\r\n" `shouldBe` [("K1", "V1")]
+    it "parses http headers" $ do
+      let input = "K1:V1\r\nK2: V2\r\n"
+      parse_ headers input `shouldBe` [("K1", "V1"), ("K2", "V2")]
+    it "accepts multi-line value" $ do
+      let input1 = "K1:V1\r\nK2: V2\r\n   -A\r\n"
+      parse_ headers input1 `shouldBe` [("K1", "V1"), ("K2", "V2 -A")]
+      let input2 = "K1:V1\r\nK2: V2\r\n  \t -B\r\n"
+      parse_ headers input2 `shouldBe` [("K1", "V1"), ("K2", "V2 -B")]
+    it "does not accept the header having space(s) before `:`" $ do
+      parse_ headers "K1: V1\r\nK2 : V2\r\n" `shouldBe` [("K1", "V1")]
+      parse_ headers "K1 : V1\r\nK2: V2\r\n" `shouldBe` []
+      parse_ headers "K1  : V1\r\n" `shouldBe` []
+
     where
       parse_ p input =
           let parser r = case r of
