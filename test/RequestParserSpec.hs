@@ -5,9 +5,11 @@ module RequestParserSpec where
 import Control.Exception
 import Control.Monad
 import Data.Attoparsec
-import Data.ByteString
+import qualified Data.ByteString as ByteString
 import Network.Panpipes.HTTP.RequestParser
-import Network.Panpipes.HTTP.Type
+import Network.Panpipes.HTTP.Types (Method)
+import qualified Network.Panpipes.HTTP.Types as Types (PartialRequest(..))
+import Network.Panpipes.HTTP.Types hiding (PartialRequest(..))
 import Test.Hspec
 
 spec :: Spec
@@ -49,10 +51,30 @@ spec = do
       parse_ headers "K1 : V1\r\nK2: V2\r\n" `shouldBe` []
       parse_ headers "K1  : V1\r\n" `shouldBe` []
 
+  describe "request" $
+    it "parses http request excepting for body" $ do
+      let req = ByteString.concat [ "POST /enlighten/calais.asmx HTTP/1.1\r\n"
+                                  , "Host: localhost\r\n"
+                                  , "Content-Type: text/xml;\r\n"
+                                  , "              charset=utf-8\r\n"
+                                  , "Content-Length: length\r\n"
+                                  , "\r\n"
+                                  , "BODY"
+                                  ]
+      parse_ request req
+        `shouldBe` Types.PartialRequest
+                   { Types.method  = Post
+                   , Types.uri     = "/enlighten/calais.asmx"
+                   , Types.version = Version 1 1
+                   , Types.headers = [ ("Host", "localhost")
+                                     , ("Content-Type", "text/xml; charset=utf-8")
+                                     , ("Content-Length", "length")
+                                     ]
+                   }
     where
       parse_ p input =
           let parser r = case r of
-                Partial f  -> parser $ f empty
+                Partial f  -> parser $ f ByteString.empty
                 Done _ a   -> a
                 Fail _ _ a -> error a
           in

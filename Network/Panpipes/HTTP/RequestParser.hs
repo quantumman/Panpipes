@@ -6,6 +6,7 @@ module Network.Panpipes.HTTP.RequestParser (
   , version
   , Version(..)
   , headers
+  , request
   ) where
 
 import Control.Applicative
@@ -15,7 +16,16 @@ import qualified Data.ByteString as ByteString (unpack, pack)
 import Data.ByteString hiding (notElem, map, concat)
 import Data.Char (ord, chr, digitToInt)
 import Data.Word (Word8(..))
-import Network.Panpipes.HTTP.Type
+import qualified Network.Panpipes.HTTP.Types as Types (PartialRequest(..))
+import Network.Panpipes.HTTP.Types hiding (PartialRequest(..))
+
+
+request :: Parser Types.PartialRequest
+request = Types.PartialRequest
+          <$> method  <* space
+          <*> uri     <* space
+          <*> version <* crlf
+          <*> headers
 
 
 method :: Parser Method
