@@ -10,7 +10,7 @@ module Network.Panpipes.HTTP.RequestParser (
 
 import Control.Applicative
 import Data.Attoparsec
-import Data.Attoparsec.Char8 hiding (satisfy)
+import Data.Attoparsec.Char8 hiding (satisfy, takeTill)
 import qualified Data.ByteString as ByteString (unpack, pack)
 import Data.ByteString hiding (notElem, map, concat)
 import Data.Char (ord, chr, digitToInt)
@@ -26,6 +26,10 @@ method = Option <$ string "OPTION"
          <|> Trace <$ string "TRACE"
          <|> Connect <$ string "CONNECT"
          <|> word8' 'P' *> (Post <$ string "OST" <|> Put <$ string "UT")
+
+
+uri :: Parser ByteString
+uri = takeTill (== 32) -- 32 == ' '
 
 
 version :: Parser Version
