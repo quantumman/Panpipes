@@ -3,3 +3,4 @@
 
 # excutable files/binaries
 *.lhs
+dist
