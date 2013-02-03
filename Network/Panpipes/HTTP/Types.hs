@@ -16,3 +16,9 @@ data PartialRequest = PartialRequest
     , version :: Version
     , headers :: [(ByteString, ByteString)]
     } deriving (Show, Eq)
+
+
+data Status = Status
+    { code :: Int
+    , reasonPhrase :: String
+    } deriving (Show, Eq)
