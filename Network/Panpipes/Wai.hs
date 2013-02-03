@@ -22,3 +22,6 @@ type ResponseHeaders = [(ByteString, ByteString)]
 
 data Response p = ResponseFile HTTP.Status ResponseHeaders FilePath
                 | Response HTTP.Status ResponseHeaders (Body p)
+
+
+data Application p = Application (Request p -> IO (Response p))
