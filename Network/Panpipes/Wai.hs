@@ -8,7 +8,7 @@ import Data.ByteString
 import qualified Network.Panpipes.HTTP.Types as HTTP
 
 
-type Body = forall p. Proxy p => Producer p ByteString SafeIO ()
+type Body = forall p. Proxy p => Producer (ExceptionP p) ByteString SafeIO ()
 
 
 data Request = Request
