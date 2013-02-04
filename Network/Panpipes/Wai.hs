@@ -1,3 +1,5 @@
+{-# LANGUAGE RankNTypes #-}
+
 module Network.Panpipes.Wai where
 
 import Control.Proxy
@@ -6,22 +8,22 @@ import Data.ByteString
 import qualified Network.Panpipes.HTTP.Types as HTTP
 
 
-type Body p = Producer p ByteString SafeIO ()
+type Body = forall p. Proxy p => Producer p ByteString SafeIO ()
 
 
-data Request p = Request
-                 { method  :: HTTP.Method
-                 , version :: HTTP.Version
-                 , rowUri  :: ByteString
-                 , requestHeaders :: [(ByteString, ByteString)]
-                 , requestBody    :: Body p
-                 }
+data Request = Request
+               { method  :: HTTP.Method
+               , version :: HTTP.Version
+               , rowUri  :: ByteString
+               , requestHeaders :: [(ByteString, ByteString)]
+               , requestBody    :: Body
+               }
 
 
 type ResponseHeaders = [(ByteString, ByteString)]
 
-data Response p = ResponseFile HTTP.Status ResponseHeaders FilePath
-                | Response HTTP.Status ResponseHeaders (Body p)
+data Response = ResponseFile HTTP.Status ResponseHeaders FilePath
+              | Response HTTP.Status ResponseHeaders Body
 
 
-data Application p = Application (Request p -> IO (Response p))
+data Application = Application (Request -> IO Response)
