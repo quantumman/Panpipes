@@ -1,8 +1,4 @@
-module Control.Proxy.Network
-    ( BlockSize
-    , fromTcpS
-    )
-where
+module Control.Proxy.Network where
 
 import Control.Monad (unless)
 import Control.Proxy
