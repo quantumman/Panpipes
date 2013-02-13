@@ -23,3 +23,12 @@ fromTcpS :: Proxy p
 fromTcpS sock blockSize () = do
   bs <- tryIO $ recv sock blockSize
   unless (Strict.null bs) $ respond bs >>= fromTcpS sock blockSize
+
+
+toTcpD :: Proxy p
+       => Socket
+       -> ()
+       -> Consumer (ExceptionP p) Strict.ByteString SafeIO ()
+toTcpD sock () = forever $ do
+  bs <- request ()
+  tryIO $ sendAll sock bs
